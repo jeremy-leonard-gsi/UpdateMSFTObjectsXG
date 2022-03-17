@@ -54,7 +54,6 @@ class Config {
     public function load(){
         if(($json_data = file_get_contents($this->configPath))!==false){
             $config = json_decode($json_data);
-            print_r($config);
             foreach($config as $name => $value){
                 $this->write($name, $value);
             }
