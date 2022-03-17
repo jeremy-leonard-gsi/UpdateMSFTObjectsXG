@@ -23,10 +23,20 @@ foreach($endpoints as $endpoint){
         $ips[]=$ip;
     }
 }
-print_r(array_unique($urls));
-print_r(array_unique($ips));
+//print_r(array_unique($urls));
+//print_r(array_unique($ips));
 
-#$xg = new SophosXGAPI($db);
+
+
+$xg = new SophosXGAPI($config);
+
+$xg->addFQDNHost('*.1test.org','*.1test.net',['Microsoft Services']);
+
+echo json_encode($xg->getFQDNHostGroup('Microsoft Services'),JSON_PRETTY_PRINT);
+
+//print_r($xg->getFQDNHost('*.1test.net'));
+
+//$xg->removeFQDNHost('*.1test.net');
 
 //$config->write('localVersion',$msft->getCurrentVersion());
 $config->save();
