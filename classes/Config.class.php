@@ -13,14 +13,17 @@
  */
 class Config {
     
-    public function __construct() {
+    private $configPath;
+
+    public function __construct($configPath=null) {
+        $this->configPath=$configPath ?? dirname(__DIR__).DIRECTORY_SEPARATOR.'config.json';
         $this->load();
         try{            
             if($this->clientrequestid===false){
                 $this->genUUID();
             }
             if($this->msftURL===false){
-                $this->write('msftURL','https://endpoints.office.com/endpoints/worldwide');
+                $this->write('msftURL','https://endpoints.office.com');
             }
             if($this->XGURL===false){
                 throw new Exception("The config file is missing an entry for XGURL. This is the URL used to access the XG/XGS API.");
@@ -49,10 +52,8 @@ class Config {
         return $this->$name = $value;
     }
     public function load(){
-        if(($json_data = file_get_contents(dirname(__DIR__).DIRECTORY_SEPARATOR.'config.json'))!==false){
-            error_log("json file opened successfully.");
+        if(($json_data = file_get_contents($this->configPath))!==false){
             $config = json_decode($json_data);
-            error_log("Converted json data to object");
             print_r($config);
             foreach($config as $name => $value){
                 $this->write($name, $value);
@@ -63,9 +64,9 @@ class Config {
         }
     }
     public function save(){
-        file_put_contents(dirname(__DIR__).DIRECTORY_SEPARATOR.'config.json', json_encode($this, JSON_PRETTY_PRINT));
+        file_put_contents($this->configPath, json_encode($this, JSON_PRETTY_PRINT));
     }
     protected function genUUID(){
-            return $this->clientrequestid = Ramsey\Uuid\Uuid::uuid4()->toString();        
+        return $this->clientrequestid = Ramsey\Uuid\Uuid::uuid4()->toString();        
     }
 }
