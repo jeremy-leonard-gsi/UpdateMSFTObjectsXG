@@ -72,7 +72,7 @@ This must be run on system aside from the firewall itself. It is not supported t
 |msftURL         | This is the base URL for accessing Microsoft Web Endpoint API. This can be non-existant or populated with the URL from Microsoft's documentation. Don't leave it blank. This won't work as expected.                                                            |
 |localVersion    | This is the last version of Microsoft's list. If this is older than the current version from Microsoft or doesn't exist, the program will rebuild the objects on the firewall.  |
 |XGURL           | **REQUIRED** This is the DNS name or IP address of your firewall.     |
-|XGUser          | **REQUIRED** This us the API user created above.                                                                                        |
+|XGUser          | **REQUIRED** This us the API user created above. **Note** This user must not have MFA/OTP required. This will not work with the API.                                                                                       |
 |XGPassword      | **REQUIRED** This is the encrypted password for the API user. See the [Sophos XG API documentation](https://docs.sophos.com/nsg/sophos-firewall/18.5/Help/en-us/webhelp/onlinehelp/AdministratorHelp/BackupAndFirmware/API/index.html#get-the-encrypted-password-for-api-requests) for how to encrypt the password.   |
 
 ## Running the program
