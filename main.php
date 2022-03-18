@@ -11,49 +11,82 @@ include(__DIR__.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'autoload.php')
 
 $config = new Config($argv[1] ?? null);
 
-//$msft = new MSFTEndpoints($config);
-//$endpoints = $msft->checkForUpdates();
-//$urls=[];
-//$ips=[];
-//foreach($endpoints as $endpoint){
-//    foreach($endpoint->urls as $url){
-//        $urls[]=$url;
-//    }
-//    foreach($endpoint->ips as $ip){
-//        $ips[]=$ip;
-//    }
-//}
-//print_r(array_unique($urls));
-//print_r(array_unique($ips));
+$msft = new MSFTEndpoints($config);
+if(($endpoints = $msft->checkForUpdates())!==false){
+    $urls=[];
+    $ips=[];
+    foreach($endpoints as $endpoint){
+        if(isset($endpoint->urls)){
+            foreach($endpoint->urls as $url){
+                $urls[]=$url;
+            }
+        }
+        if(isset($endpoint->ips)){
+            foreach($endpoint->ips as $ip){
+                $ips[]=$ip;
+            }
+        }
+    }    
 
+    $xg = new SophosXGAPI($config);
+    
+    // Remove existing IPHosts
 
+    $oldHosts = $xg->getIPHostGroup("Microsoft Endpoint IPs");
+    if($oldHosts===false){
+        echo "Creating Microsoft Endpoint IPs IPHostGroup\n";
+        $xg->addIPHostGroup('Microsoft Endpoint IPs');
+    }else{
+        print_r($oldHosts);
+        if(isset($oldHosts->HostList) AND is_array($oldHosts->HostList)){
+            foreach($oldHosts->HostList as $oldHost){
+                $xg->removeIPHost($oldHost);
+            }
+        }
+    }
+    
+    // Create new IPHosts
+    foreach($ips as $ip){
+        $subnet = cidr2NetmaskAddr($ip);
+        $address = substr($ip, 0, stripos($ip,'/'));
+        $xg->addIPHost("MSFT-Endpoint-$ip", SophosXGAPI::HostType_Network, ['Microsoft Endpoint IPs'], $address, $subnet);
+    }
 
-$xg = new SophosXGAPI($config);
+    // Remove existing FQDNHosts
+    
+    $oldHosts = $xg->getFQDNHostGroup("Microsoft Endpoint FQDNs");
+    if($oldHosts===false){
+        echo "Creating Microsoft Endpoint FQDNs FQDNHostGroup\n";
+        $xg->addFQDNHostGroup('Microsoft Endpoint FQDNs');
+    }else{
+        print_r($oldHosts);
+        if(isset($oldHosts->FQDNHostList) AND is_array($oldHosts->FQDNHostList)){
+            foreach($oldHosts->FQDNHostList as $oldHost){
+                $xg->removeFQDNHost($oldHost);
+            }
+        }
+    }
+    
+    // Create new IPHosts
+    foreach($urls as $url){
+        echo $url."\n";
+        $xg->addFQDNHost($url, "MSFT-Endpoint-$url",  ['Microsoft Endpoint FQDNs']);
+    }
 
-//$xg->addFQDNHost('*.1test.org','*.1test.net',['Microsoft Services']);
+    
+    $config->write('localVersion',$msft->getCurrentVersion());
+}
 
-//echo json_encode($xg->getFQDNHostGroup('Microsoft Services'),JSON_PRETTY_PRINT);
-//echo json_encode($xg->getFQDNHost('*.1test.net'),JSON_PRETTY_PRINT);
-
-//$xg->addFQDNHostGroup('1-Test','Testing',[]);
-//print_r($xg->addFQDNHost('*.1test.net','*.1test.net',['1-Test']));
-//$xg->removeFQDNHost('*.1test.net');
-//$xg->removeFQDNHostGroup('1-Test');
-
-
-//$xg->removeFQDNHostGroup('1-Test');
-
-//$xg->removeFQDNHost('*.1test.net');
-
-//print_r($xg->addIPHostGroup('Test Networks', 'Testing'));
-
-//print_r($xg->addIPHost('1TestHost', SophosXGAPI::HostType_IP, ['Test Networks'], '10.1.1.1'));
-//print_r($xg->addIPHost('1TestHost', SophosXGAPI::HostType_Network, [], '10.1.1.0','255.255.255.0'));
-print_r($xg->removeIPHost('1TestHost'));
-
-//print_r($xg->getIPHostGroup('Test Networks'));
-
-//$xg->removeIPHostGroup('Test Networks');
-
-//$config->write('localVersion',$msft->getCurrentVersion());
 $config->save();
+
+function cidr2NetmaskAddr ($cidr) {
+
+    $ta = substr ($cidr, strpos ($cidr, '/') + 1) * 1;
+    $netmask = str_split (str_pad (str_pad ('', $ta, '1'), 32, '0'), 8);
+
+    foreach ($netmask as &$element)
+      $element = bindec ($element);
+
+    return join ('.', $netmask);
+
+  }
