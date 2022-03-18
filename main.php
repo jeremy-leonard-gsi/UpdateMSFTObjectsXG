@@ -32,7 +32,7 @@ if(($endpoints = $msft->checkForUpdates())!==false){
     $xg = new SophosXGAPI($config);
     
     // Remove existing IPHosts
-
+    echo "Processing IPs...\n";
     $oldHosts = $xg->getIPHostGroup("Microsoft Endpoint IPs");
     if($oldHosts===false){
         echo "Creating Microsoft Endpoint IPs IPHostGroup\n";
