@@ -42,7 +42,6 @@ class SophosXGAPI {
             if($IPHost->getElementsByTagName('Name')[0]->nodeValue==$name){
                 $obj = new stdClass();
                 foreach($attrs as $attr){
-                    echo $attr."\n";
                     $obj->$attr = $IPHost->getElementsByTagName($attr)[0]->nodeValue ?? null;
                 }
                 if(count($IPHost->getElementsByTagName('HostGroupList')) > 0){
@@ -79,7 +78,6 @@ class SophosXGAPI {
                 $xml = sprintf('<Set><IPHost><Name>%s</Name><IPFamily>%s</IPFamily><HostType>Network</HostType><IPAddress>%s</IPAddress><Subnet>%s</Subnet>%s</IPHost></Set>',$name,$IPFamily,$IPAddress,$Subnet,$groups);
                 break;
         }
-        error_log($xml);
         return $this->doAPI($xml);
     }
     public function removeIPHost($name){
@@ -139,20 +137,23 @@ class SophosXGAPI {
     
     public function getIPHostGroup($name){
         $xml=sprintf('<Get><IPHostGroup><Name>%s</Name></IPHostGroup></Get>',$name);
-        $domxpath = $this->doAPI($xml);
-
-        foreach($domxpath->evaluate('//IPHostGroup') AS $IPHostGroup){
-            if($IPHostGroup->getElementsByTagName('Name')[0]->nodeValue==$name){
-                $obj = new stdClass();
-                $obj->Name = $IPHostGroup->getElementsByTagName('Name')[0]->nodeValue;
-                $obj->IPFamily = $IPHostGroup->getElementsByTagName('IPFamily')[0]->nodeValue;
-                $obj->Description = $IPHostGroup->getElementsByTagName('Description')[0]->nodeValue;
-                if(count($IPHostGroup->getElementsByTagName('HostList'))){
-                    foreach($IPHostGroup->getElementsByTagName('HostList')[0]->getElementsByTagName('Host') AS $Host){
-                        $obj->HostList[]=$Host->nodeValue;
+        if(($domxpath = $this->doAPI($xml))===false){
+            return false;
+        }else{
+            foreach($domxpath->evaluate('//IPHostGroup') AS $IPHostGroup){
+                if($IPHostGroup->getElementsByTagName('Name')[0]->nodeValue==$name){
+                    $obj = new stdClass();
+                    $obj->Name = $IPHostGroup->getElementsByTagName('Name')[0]->nodeValue;
+                    $obj->IPFamily = $IPHostGroup->getElementsByTagName('IPFamily')[0]->nodeValue;
+                    $obj->Description = $IPHostGroup->getElementsByTagName('Description')[0]->nodeValue;
+                    if(count($IPHostGroup->getElementsByTagName('HostList'))>0){
+                        foreach($IPHostGroup->getElementsByTagName('HostList')[0]->getElementsByTagName('Host') AS $Host){
+                            $obj->HostList[]=$Host->nodeValue;
+                        }
                     }
+                    return $obj;
                 }
-                return $obj;
+                return false;
             }
         }
     }    
@@ -176,18 +177,23 @@ class SophosXGAPI {
 
     public function getFQDNHostGroup($name){
         $xml=sprintf('<Get><FQDNHostGroup><Name>%s</Name></FQDNHostGroup></Get>',$name);
-        $domxpath = $this->doAPI($xml);
-
-        foreach($domxpath->evaluate('//FQDNHostGroup') AS $FQDNHostGroup){
-            if($FQDNHostGroup->getElementsByTagName('Name')[0]->nodeValue==$name){
-                $obj = new stdClass();
-                $obj->Name = $FQDNHostGroup->getElementsByTagName('Name')[0]->nodeValue;
-                $obj->Description = $FQDNHostGroup->getElementsByTagName('Description')[0]->nodeValue;
-                foreach($FQDNHostGroup->getElementsByTagName('FQDNHostList')[0]->getElementsByTagName('FQDNHost') AS $FQDNHosts){
-                    $obj->FQDNHostList[]=$FQDNHosts->nodeValue;
+        if(($domxpath = $this->doAPI($xml))===false){
+            return false;
+        }else{
+            foreach($domxpath->evaluate('//FQDNHostGroup') AS $FQDNHostGroup){
+                if($FQDNHostGroup->getElementsByTagName('Name')[0]->nodeValue==$name){
+                    $obj = new stdClass();
+                    $obj->Name = $FQDNHostGroup->getElementsByTagName('Name')[0]->nodeValue;
+                    $obj->Description = $FQDNHostGroup->getElementsByTagName('Description')[0]->nodeValue;
+                    if(count($FQDNHostGroup->getElementsByTagName('FQDNHostList')) > 0){
+                        foreach($FQDNHostGroup->getElementsByTagName('FQDNHostList')[0]->getElementsByTagName('FQDNHost') AS $FQDNHosts){
+                            $obj->FQDNHostList[]=$FQDNHosts->nodeValue;
+                        }
+                    }
+                    return $obj;
                 }
-                return $obj;
             }
+            return false;
         }
     }    
     public function addFQDNHostGroup($name, $description=null, $FQDNHostList=[]){
@@ -221,7 +227,6 @@ class SophosXGAPI {
         curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 //        curl_setopt($curl, CURLOPT_HEADER, true);
         
         $headers = [
@@ -241,15 +246,17 @@ class SophosXGAPI {
 //        error_log(print_r(curl_getinfo($curl),true));
 
         $resp = curl_exec($curl);
-        error_log(print_r(curl_getinfo($curl),true));
+//        error_log(print_r(curl_getinfo($curl),true));
         curl_close($curl);
-        error_log($resp);
-//        error_log(print_r($resp,true));
+        error_log(print_r($resp,true));
         
-        $dom = new DOMDocument();
-        $dom->loadXML($resp);
-        $domxpath = new DOMXPath($dom);
-        
-        return $domxpath;
+        if(strlen($resp)==0){
+            return false;
+        }else{
+            $dom = new DOMDocument();
+            $dom->loadXML($resp);
+            $domxpath = new DOMXPath($dom);
+            return $domxpath;
+        }        
     }
 }
