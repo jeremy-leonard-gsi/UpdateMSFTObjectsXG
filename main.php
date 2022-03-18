@@ -37,7 +37,6 @@ if(($endpoints = $msft->checkForUpdates())!==false){
         echo "Creating Microsoft Endpoint IPs IPHostGroup\n";
         $xg->addIPHostGroup('Microsoft Endpoint IPs');
     }else{
-        print_r($oldHosts);
         if(isset($oldHosts->HostList) AND is_array($oldHosts->HostList)){
             foreach($oldHosts->HostList as $oldHost){
                 $xg->removeIPHost($oldHost);
@@ -59,7 +58,6 @@ if(($endpoints = $msft->checkForUpdates())!==false){
         echo "Creating Microsoft Endpoint FQDNs FQDNHostGroup\n";
         $xg->addFQDNHostGroup('Microsoft Endpoint FQDNs');
     }else{
-        print_r($oldHosts);
         if(isset($oldHosts->FQDNHostList) AND is_array($oldHosts->FQDNHostList)){
             foreach($oldHosts->FQDNHostList as $oldHost){
                 $xg->removeFQDNHost($oldHost);
