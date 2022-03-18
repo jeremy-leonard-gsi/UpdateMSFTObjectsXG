@@ -41,7 +41,7 @@ if(($endpoints = $msft->checkForUpdates())!==false){
         echo "Clearing existing IP objects...\n";
         if(isset($oldHosts->HostList) AND is_array($oldHosts->HostList)){
             foreach($oldHosts->HostList as $oldHost){
-                echo "\t$oldHosts\n";
+                echo "\t$oldHost\n";
                 $xg->removeIPHost($oldHost);
             }
         }
@@ -66,7 +66,7 @@ if(($endpoints = $msft->checkForUpdates())!==false){
         echo "Clearing existing FQDN objects...\n";
         if(isset($oldHosts->FQDNHostList) AND is_array($oldHosts->FQDNHostList)){
             foreach($oldHosts->FQDNHostList as $oldHost){
-                echo "\t$oldHosts\n";
+                echo "\t$oldHost\n";
                 $xg->removeFQDNHost($oldHost);
             }
         }
