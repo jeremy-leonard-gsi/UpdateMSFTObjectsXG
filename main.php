@@ -14,6 +14,7 @@ $config = new Config($argv[1] ?? null);
 $msft = new MSFTEndpoints($config);
 if(($endpoints = $msft->checkForUpdates())!==false){
     echo "Microsoft has a newer version. Updating objects...\n";
+    $config->write('localVersion',$msft->getCurrentVersion());
     $urls=[];
     $ips=[];
     foreach($endpoints as $endpoint){
@@ -83,7 +84,6 @@ if(($endpoints = $msft->checkForUpdates())!==false){
     }
 
     
-    $config->write('localVersion',$msft->getCurrentVersion());
 }
 
 $config->save();
