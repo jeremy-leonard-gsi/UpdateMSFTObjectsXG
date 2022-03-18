@@ -248,7 +248,7 @@ class SophosXGAPI {
         $resp = curl_exec($curl);
 //        error_log(print_r(curl_getinfo($curl),true));
         curl_close($curl);
-        error_log(print_r($resp,true));
+//        error_log(print_r($resp,true));
         
         if(strlen($resp)==0){
             return false;
