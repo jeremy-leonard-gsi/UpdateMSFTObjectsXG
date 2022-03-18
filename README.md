@@ -1,7 +1,7 @@
 
 # Update Sophos XG(S) from Microst Endpoint Web Service
 
-This project consumes Microsoft's Web API to get Microsoft's current endpoints and then, using Sophos XG/S's API created objects that can be used in rules in the firewall to exclude these endpoints from filtering, etc.
+This project consumes Microsoft's Web API to get Microsoft's current endpoints and then, using Sophos XG/S's API, creates objects that can be used in rules in the firewall to exclude these endpoints from filtering, etc.
 
 ## Documentation
 
