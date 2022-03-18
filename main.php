@@ -13,6 +13,7 @@ $config = new Config($argv[1] ?? null);
 
 $msft = new MSFTEndpoints($config);
 if(($endpoints = $msft->checkForUpdates())!==false){
+    echo "Microsoft has a newer version. Updating objects...\n";
     $urls=[];
     $ips=[];
     foreach($endpoints as $endpoint){
@@ -37,15 +38,19 @@ if(($endpoints = $msft->checkForUpdates())!==false){
         echo "Creating Microsoft Endpoint IPs IPHostGroup\n";
         $xg->addIPHostGroup('Microsoft Endpoint IPs');
     }else{
+        echo "Clearing existing IP objects...\n";
         if(isset($oldHosts->HostList) AND is_array($oldHosts->HostList)){
             foreach($oldHosts->HostList as $oldHost){
+                echo "\t$oldHosts\n";
                 $xg->removeIPHost($oldHost);
             }
         }
     }
     
     // Create new IPHosts
+    echo "Creating new IP hosts...\n";
     foreach($ips as $ip){
+        echo "\t$ip\n";
         $subnet = cidr2NetmaskAddr($ip);
         $address = substr($ip, 0, stripos($ip,'/'));
         $xg->addIPHost("MSFT-Endpoint-$ip", SophosXGAPI::HostType_Network, ['Microsoft Endpoint IPs'], $address, $subnet);
@@ -58,16 +63,19 @@ if(($endpoints = $msft->checkForUpdates())!==false){
         echo "Creating Microsoft Endpoint FQDNs FQDNHostGroup\n";
         $xg->addFQDNHostGroup('Microsoft Endpoint FQDNs');
     }else{
+        echo "Clearing existing FQDN objects...\n";
         if(isset($oldHosts->FQDNHostList) AND is_array($oldHosts->FQDNHostList)){
             foreach($oldHosts->FQDNHostList as $oldHost){
+                echo "\t$oldHosts\n";
                 $xg->removeFQDNHost($oldHost);
             }
         }
     }
     
-    // Create new IPHosts
+    // Create new FQDNHosts
+    echo "Creating new FQDN hosts...\n";
     foreach($urls as $url){
-        echo $url."\n";
+        echo "\t$url\n";
         $xg->addFQDNHost($url, "MSFT-Endpoint-$url",  ['Microsoft Endpoint FQDNs']);
     }
 
