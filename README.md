@@ -66,13 +66,13 @@ This must be run on system aside from the firewall itself. It is not supported t
 #### config.json options
 |   Option       | Description                                                                                                                |
 |----------------|----------------------------------------------------------------------------------------------------------------------------|
-|clientrequestid | This is the UUID used for identifying requests to Microsoft.                                                               |
-|TenantName      | This is your tenant name for your Microsoft tenancy. This is the part before the .onmicrosoft.com                          |
-|NoIPv6          | When set to true the API will exclude IPv6 addresses from the lists of IPs.                                                |
+|clientrequestid | This is the UUID used for identifying requests to Microsoft. Remove this option for the json file and a new one will be created for you. Make sure to remove this option. Don't just leave it blank. This won't work as desired.  |
+|TenantName      | This is your tenant name for your Microsoft tenancy. This is the part before the .onmicrosoft.com. If you populate this option URLS will have this name in them. If you remove this option, these urls will have an asterisk in its place. Remove this if you don't want you tenant name used. Leaving it blank won't work as desited.                          |
+|NoIPv6          | When set to true the API will exclude IPv6 addresses from the lists of IPs. This can be true, false, or non-existant. If it doesn't exist IPv6 addresses will be returned.                                                |
 |msftURL         | This is the base URL for accessing Microsoft Web Endpoint API.                                                             |
 |localVersion    | This is the last version of Microsoft's list. If this is older than the current version from Microsoft or doesn't exist, the program will rebuild the objects on the firewall.  |
-|XGUser          | This us the API user created above.                                                                                        |
-|XGPassword      | This is the encrypted password for the API user. See the [Sophos XG API documentation](https://docs.sophos.com/nsg/sophos-firewall/18.5/Help/en-us/webhelp/onlinehelp/AdministratorHelp/BackupAndFirmware/API/index.html#get-the-encrypted-password-for-api-requests) for how to encrypt the password.   |
+|XGUser          | **REQUIRED** This us the API user created above.                                                                                        |
+|XGPassword      | **REQUIRED** This is the encrypted password for the API user. See the [Sophos XG API documentation](https://docs.sophos.com/nsg/sophos-firewall/18.5/Help/en-us/webhelp/onlinehelp/AdministratorHelp/BackupAndFirmware/API/index.html#get-the-encrypted-password-for-api-requests) for how to encrypt the password.   |
 
 ## Running the program
 
