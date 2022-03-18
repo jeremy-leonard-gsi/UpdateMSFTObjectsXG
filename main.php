@@ -28,7 +28,10 @@ if(($endpoints = $msft->checkForUpdates())!==false){
             }
         }
     }    
-
+    
+    $ips = array_unique($ips);
+    $urls = array_unique($urls);
+    
     $xg = new SophosXGAPI($config);
     
     // Remove existing IPHosts
